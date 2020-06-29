@@ -122,7 +122,8 @@ bool initializeEmulator(void) {
 
 bool loadProgram(const char *path) {
 	FILE *programFile;
-	uint8_t buffer[4096-0x200];
+	// Reading starts from 0x200
+	uint8_t buffer[4096-0x200]; 
 	size_t i;
 
 	programFile = fopen(path, "rb");
@@ -166,7 +167,6 @@ int runTimers(void *data) {
 
 void emulateCycle(void) {
 	uint8_t i;
-
 
 	opcode = memory[pc] << 8 | memory[pc + 1];
 
