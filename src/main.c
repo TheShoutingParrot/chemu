@@ -8,7 +8,7 @@ int main(int argc, char *args[]) {
 	if(!initializeEmulator())
 		die("emulator initialization has failed!");
 	
-	loadProgram("examples/test_opcode.ch8");
+	loadProgram(args[argc - 1]);
 
 	cpuIsRunning = true;
 
@@ -216,6 +216,12 @@ void emulateCycle(void) {
 
 	opcode = memory[pc] << 8 | memory[pc + 1];
 
+	// Almost all of the following descriptions of the instructions are
+	// based on Cowdog's Chip-8 technical reference (http://devernay.free.fr/hacks/chip8/C8TECH10.HTM).
+	// The descriptions and mnemonics are there just to help to find
+	// an instructions and to quickly understand what a specific instruction
+	// does. These comments can't replace a technical manual (such as Cowdog's).
+	
 	switch(opcode & 0xF000) {
 		case 0x0000:
 			switch(opcode & 0x00FF) {
@@ -472,6 +478,7 @@ void emulateCycle(void) {
 
 		case 0xF000:
 			switch(opcode & 0x00FF) {
+				// LD Vx, DT: Delay Timer = Vx
 				case 0x0007:
 					SDL_AtomicLock(&gTimerLock);
 					V[(opcode & 0x0F00) >> 8] = delayTimer;
@@ -481,6 +488,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD Vx, K: Waits for a key press then stores in Vx
 				case 0x000A:
 					waitForKey();
 
@@ -488,6 +496,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD DT, Vx: Vx = Delay Timer
 				case 0x0015:
 					SDL_AtomicLock(&gTimerLock);
 					delayTimer = V[(opcode & 0x0F00) >> 8];
@@ -497,6 +506,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD ST, Vx: Sound Timer = Vx
 				case 0x0018:
 					SDL_AtomicLock(&gTimerLock);
 					soundTimer = V[(opcode & 0x0F00) >> 8];
@@ -505,7 +515,7 @@ void emulateCycle(void) {
 					pc += 2;
 
 					break;
-				// ADD I, Vx
+				// ADD I, Vx: I = I + Vx
 				case 0x001E:
 					I += V[(opcode & 0x0F00) >> 8];
 
@@ -513,6 +523,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD F, Vx: Sets I to the location of sprite for digit Vx
 				case 0x0029:
 					I = FONTCHAR_SIZE * V[(opcode & 0x0F00) >> 8];
 
@@ -520,6 +531,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD B, Vx: Store BCD representation of Vx in memory locations I, I+1 and I+2
 				case 0x0033:
 					memory[I]     = (V[(opcode & 0x0F00) >> 8] % 1000) / 100;
 					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] % 100) / 10;
@@ -529,6 +541,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD [I], Vx: Stores registers V0 through Vx in memory starting at location I
 				case 0x0055:
 					for(i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						memory[I + i] = V[i];
@@ -538,6 +551,7 @@ void emulateCycle(void) {
 
 					break;
 
+				// LD Vx, [i]: Read registers V0 throught Vx from memory starting at memory location I
 				case 0x0065:
 					for(i = 0; i <= (opcode & 0x0F00) >> 8; i++) {
 						V[i] = memory[I+i];
