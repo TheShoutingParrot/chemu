@@ -8,7 +8,7 @@ int main(int argc, char *args[]) {
 	if(!initializeEmulator())
 		die("emulator initialization has failed!");
 	
-	loadProgram("examples/BC_test.ch8");
+	loadProgram("examples/test_opcode.ch8");
 
 	cpuIsRunning = true;
 
@@ -97,7 +97,7 @@ int main(int argc, char *args[]) {
 		}
 
 
-		SDL_Delay(1);
+		SDL_Delay(5);
 	}
 
 endLoop:
@@ -183,8 +183,13 @@ bool loadProgram(const char *path) {
 }
 
 int runTimers(void *data) {
+	int capTimer;
+
 	for(;;) {
+		capTimer = SDL_GetTicks();
+
 		SDL_AtomicLock(&gTimerLock);
+
 		if(delayTimer > 0)
 			delayTimer--;
 		if(soundTimer > 0) {
@@ -196,6 +201,10 @@ int runTimers(void *data) {
 			break;
 
 		SDL_AtomicUnlock(&gTimerLock);
+
+		if((capTimer + SDL_GetTicks()) < TIMER_TICKS_PER_CYCLE) {
+			SDL_Delay(TIMER_TICKS_PER_CYCLE - (capTimer + SDL_GetTicks()));
+		}
 	}
 
 	return 0;
@@ -206,8 +215,6 @@ void emulateCycle(void) {
 
 
 	opcode = memory[pc] << 8 | memory[pc + 1];
-
-	//printf("opcode %X\n", opcode);
 
 	switch(opcode & 0xF000) {
 		case 0x0000:
@@ -451,8 +458,6 @@ void emulateCycle(void) {
 					break;
 				// SKNP Vx: Skips next instruction if key with the value of register Vx isn't pressed
 				case 0x00A1:
-					//SDL_Delay(5000);
-
 					if(!(key[V[(opcode & 0x0F00) >> 8]]))
 						pc += 2;
 					else
@@ -520,14 +525,12 @@ void emulateCycle(void) {
 					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] % 100) / 10;
 					memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 10);
 
-					printf("%d - %d %d %d\n", V[(opcode & 0x0F00) >> 8], memory[I], memory[I+1], memory[I+2]);
-
 					pc += 2;
 
 					break;
 
 				case 0x0055:
-					for(i = 0; i < ((opcode & 0x0F00) >> 8); i++) {
+					for(i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						memory[I + i] = V[i];
 					}
 
@@ -536,7 +539,7 @@ void emulateCycle(void) {
 					break;
 
 				case 0x0065:
-					for(i = 0; i < (opcode & 0x0F00) >> 8; i++) {
+					for(i = 0; i <= (opcode & 0x0F00) >> 8; i++) {
 						V[i] = memory[I+i];
 					}
 
@@ -545,9 +548,6 @@ void emulateCycle(void) {
 					break;
 			}
 	}
-
-	//printRegisterValues();
-	//printf("I %X, pc %X\n", I, pc);
 }
 
 void drawInstruction(uint8_t x, uint8_t y, uint8_t height) {
@@ -650,22 +650,6 @@ uint8_t convertKeyToHex(SDL_Keycode key) {
 	}
 
 	return 0x0;
-}
-
-void printOutMemory(uint16_t start, uint16_t end) {
-	for(; start < end; start++) {
-		printf("%X: %X\n", start, memory[start]);
-	}
-}
-
-void printRegisterValues(void) {
-	uint8_t i;
-
-	printf("Registers: ");
-	for(i = 0; i < 16; i++)
-		printf("%X ", V[i]);
-	
-	putchar('\n');
 }
 
 void cleanup(void) {

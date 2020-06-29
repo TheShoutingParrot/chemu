@@ -17,6 +17,9 @@
 
 #define FONTCHAR_SIZE		5
 
+#define TIMER_SPEED		60
+#define TIMER_TICKS_PER_CYCLE	1000 / TIMER_SPEED
+
 uint16_t opcode,
 	 I,
 	 pc,
