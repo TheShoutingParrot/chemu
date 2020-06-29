@@ -1,3 +1,5 @@
 *.swp
+*/*.swp
 *.o
+*/*.o
 chemu
