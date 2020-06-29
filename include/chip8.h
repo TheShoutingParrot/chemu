@@ -20,6 +20,8 @@
 #define TIMER_SPEED		60
 #define TIMER_TICKS_PER_CYCLE	1000 / TIMER_SPEED
 
+#define USAGE			"usage: chemu rom.ch8"
+
 uint16_t opcode,
 	 I,
 	 pc,

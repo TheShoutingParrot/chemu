@@ -2,11 +2,15 @@
 
 int main(int argc, char *args[]) {
 	SDL_Thread *timerThread;
+	
+	if(argc < 2)
+		die(USAGE);
 
 	if(!initializeGraphics())
 		die("emulator initialization has failed!");
 	if(!initializeEmulator())
 		die("emulator initialization has failed!");
+
 	
 	loadProgram(args[argc - 1]);
 
@@ -33,56 +37,7 @@ int main(int argc, char *args[]) {
 					break;
 
 				case SDL_KEYDOWN:
-					switch(gEvent.key.keysym.sym) {
-						case SDLK_0:
-							key[0x0] = 1;
-							break;
-						case SDLK_1:
-							key[0x1] = 1;
-							break;
-						case SDLK_2:
-							key[0x2] = 1;
-							break;
-						case SDLK_3:
-							key[0x3] = 1;
-							break;
-						case SDLK_4:
-							key[0x4] = 1;
-							break;
-						case SDLK_5:
-							key[0x5] = 1;
-							break;
-						case SDLK_6:
-							key[0x6] = 1;
-							break;
-						case SDLK_7:
-							key[0x7] = 1;
-							break;
-						case SDLK_8:
-							key[0x8] = 1;
-							break;
-						case SDLK_9:
-							key[0x9] = 1;
-							break;
-						case SDLK_a:
-							key[0xa] = 1;
-							break;
-						case SDLK_b:
-							key[0xb] = 1;
-							break;
-						case SDLK_c:
-							key[0xc] = 1;
-							break;
-						case SDLK_d:
-							key[0xd] = 1;
-							break;
-						case SDLK_e:
-							key[0xe] = 1;
-							break;
-						case SDLK_f:
-							key[0xf] = 1;
-							break;
-					}
+					key[convertKeyToHex(gEvent.key.keysym.sym)] = 1;
 
 					break;
 			}
@@ -97,7 +52,7 @@ int main(int argc, char *args[]) {
 		}
 
 
-		SDL_Delay(5);
+		SDL_Delay(1);
 	}
 
 endLoop:
@@ -202,9 +157,8 @@ int runTimers(void *data) {
 
 		SDL_AtomicUnlock(&gTimerLock);
 
-		if((capTimer + SDL_GetTicks()) < TIMER_TICKS_PER_CYCLE) {
-			SDL_Delay(TIMER_TICKS_PER_CYCLE - (capTimer + SDL_GetTicks()));
-		}
+		if((capTimer - SDL_GetTicks()) < TIMER_TICKS_PER_CYCLE)
+			SDL_Delay(TIMER_TICKS_PER_CYCLE - (capTimer - SDL_GetTicks()));
 	}
 
 	return 0;
