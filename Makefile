@@ -1,3 +1,5 @@
+PREFIX = /usr/local
+
 IDIR = /usr/include/SDL2
 CC=gcc
 CFLAGS=-I$(IDIR)
@@ -20,7 +22,12 @@ $(ODIR)/%.o: %.c $(DEPS)
 chemu: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+install: chemu
+	mkdir -p $(PREFIX)/bin
+	cp chemu $(PREFIX)/bin/chemu
+	chmod +x $(PREFIX)/bin/chemu
 
 clean:
 	rm -f $(ODIR)/*.o
+
+.PHONY: clean install
