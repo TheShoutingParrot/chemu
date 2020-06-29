@@ -346,9 +346,9 @@ void emulateCycle(void) {
 				// register Vx and the result is stored in Vx
 				case 0x0005:
 					if(V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4])
-						V[0xF] = 0;
-					else
 						V[0xF] = 1;
+					else
+						V[0xF] = 0;
 
 					V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 
@@ -371,10 +371,10 @@ void emulateCycle(void) {
 
 				// SUBN Vx, Vy: Value of Vx is subtracted from Vy and the result is stored in Vx  
 				case 0x0007:
-					if(V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 4])
-						V[0xF] = 0;
-					else
+					if(V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8])
 						V[0xF] = 1;
+					else
+						V[0xF] = 0;
 
 					V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8];
 
@@ -516,9 +516,11 @@ void emulateCycle(void) {
 					break;
 
 				case 0x0033:
-					memory[I]     = V[(opcode & 0x0F00) >> 8] / 100;
-					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
-					memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
+					memory[I]     = (V[(opcode & 0x0F00) >> 8] % 1000) / 100;
+					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] % 100) / 10;
+					memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 10);
+
+					printf("%d - %d %d %d\n", V[(opcode & 0x0F00) >> 8], memory[I], memory[I+1], memory[I+2]);
 
 					pc += 2;
 
