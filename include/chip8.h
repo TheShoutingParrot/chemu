@@ -80,8 +80,6 @@ void waitForKey(void);
 void updateScreen(void);
 void drawScreen(void);
 
-uint8_t genRand(void);
-
 uint8_t convertKeyToHex(SDL_Keycode n);
 
 void printOutMemory(uint16_t start, uint16_t end);
