@@ -17,7 +17,7 @@ int main(int argc, char *args[]) {
 	cpuIsRunning = true;
 
 	timerThread = SDL_CreateThread(runTimers, "TimerThread", NULL);
-	
+
 	for(;;) {
 		while(SDL_PollEvent(&gEvent)) {
 			switch(gEvent.type) {
@@ -391,7 +391,7 @@ void emulateCycle(void) {
 
 		// RND Vx, byte: generates a random byte and ANDs it with byte and stores it in register Vx
 		case 0xC000:
-			V[(opcode & 0x0F00) >> 8] = genRand() & (opcode & 0x00FF);
+			V[(opcode & 0x0F00) >> 8] = (uint8_t)rand() & (opcode & 0x00FF);
 
 			pc += 2;
 
@@ -549,6 +549,11 @@ void waitForKey(void) {
 
 					break;
 
+				case SDL_WINDOWEVENT:
+					updateScreen();
+
+					break;
+
 				case SDL_KEYDOWN:
 					V[(opcode & 0x0F00) >> 8] = convertKeyToHex(gEvent.key.keysym.sym);
 
@@ -575,10 +580,6 @@ void drawScreen(void) {
 		for(x = 0; x < EMULATOR_SCREEN_WIDTH; x++)
 			if(screen[y][x])
 				SDL_RenderDrawPoint(gRenderer, x, y);
-}
-
-uint8_t genRand(void) {
-	return 173; // TODO: Create a random number generator
 }
 
 uint8_t convertKeyToHex(SDL_Keycode key) {
