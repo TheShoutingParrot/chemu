@@ -2,7 +2,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/bd60fc3cea614d8a84401e5f1a735210)](https://app.codacy.com/manual/TheShoutingParrot/chemu?utm_source=github.com&utm_medium=referral&utm_content=TheShoutingParrot/chemu&utm_campaign=Badge_Grade_Dashboard)
 
-[![GitHub](LICENSE)](https://img.shields.io/github/license/theshoutingparrot/chemu)
+![GitHub](https://img.shields.io/github/license/theshoutingparrot/chemu)
 
 Chemu is a CHIP-8 emulator that is written in C and uses the SDL2 library.
 
